@@ -1,7 +1,7 @@
-# Task1CSpec Bootstrap
+# Загрузка Task1CSpec
 
-This project contains a local Task1CSpec orchestrator in `.task1cspec/`.
+Этот проект содержит локальный оркестратор Task1CSpec в `.task1cspec/`.
 
-When the user asks to manage 1C task specifications or sends a Task1CSpec command, read `.task1cspec/AGENTS.md` completely and follow it.
+Когда пользователь просит вести спецификации задач 1С или отправляет команду Task1CSpec, полностью прочитай `.task1cspec/AGENTS.md` и следуй ему.
 
-The root `AGENTS.md` is intentionally small because Codex discovers project instructions from this conventional filename.
+Корневой `AGENTS.md` намеренно сделан коротким: Codex обнаруживает инструкции проекта по этому стандартному имени файла.

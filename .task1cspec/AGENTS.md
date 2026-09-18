@@ -1,10 +1,10 @@
-# Task1CSpec Local Orchestrator
+# Локальный оркестратор Task1CSpec
 
-This directory contains a local Task1CSpec orchestrator. Treat these instructions as active whenever the root `AGENTS.md` points here.
+В этом каталоге находится локальный оркестратор Task1CSpec. Считай эти инструкции активными всегда, когда корневой `AGENTS.md` указывает сюда.
 
-## Activation
+## Активация
 
-Use Task1CSpec when the user asks to manage 1C task specifications or sends one of these local-mode commands:
+Используй Task1CSpec, когда пользователь просит вести спецификации задач 1С или отправляет одну из команд локального режима:
 
 - `Начни задачу`
 - `Начни аналитику`
@@ -13,34 +13,34 @@ Use Task1CSpec when the user asks to manage 1C task specifications or sends one 
 - `Начни тестирование`
 - `Начни документацию`
 
-Before doing Task1CSpec work, read `.task1cspec/skills/task1cspec/SKILL.md` completely and follow it as the workflow authority. If it references `references/templates.md`, read that index and the role-specific template file before creating or updating specifications.
+Перед работой по Task1CSpec полностью прочитай `.task1cspec/skills/task1cspec/SKILL.md` и считай его главным описанием процесса. Если он ссылается на `references/templates.md`, прочитай этот индекс и шаблон конкретной роли перед созданием или обновлением спецификаций.
 
-## Local Files
+## Локальные файлы
 
-The orchestrator is intentionally project-local and does not require Codex plugin installation.
+Оркестратор намеренно хранится внутри проекта и не требует установки плагина Codex.
 
-- Keep task data in `ProjectSpecs/`.
-- Do not rely on local helper scripts or Python. Perform `init`, `start`, `status`, `role`, and `archive` as direct agent file operations with shell commands such as `mkdir`, `find`, `mv`, and file reads/writes.
+- Храни данные задач в `ProjectSpecs/`.
+- Не полагайся на локальные вспомогательные скрипты и Python. Выполняй `init`, `start`, `status`, `role` и `archive` как прямые файловые операции агента через команды оболочки вроде `mkdir`, `find`, `mv`, а также чтение и запись файлов.
 
-## Command Handling
+## Обработка команд
 
-Local-mode commands are plain text and do not start with `/`. Codex clients may intercept unknown slash commands before the agent can process them.
+Команды локального режима являются обычным текстом и не начинаются с `/`. Клиенты Codex могут перехватить неизвестные слэш-команды до того, как агент сможет их обработать.
 
-- `Начни задачу RTD-2343: Название` starts or continues a task.
-- `Начни аналитику RTD-2343 <путь-к-файлу>` or `Начни аналитику RTD-2343 <текст требований>` runs the analyst stage.
-- `Начни архитектуру RTD-2343` runs the architect stage.
-- `Начни разработку RTD-2343` creates or updates `Реализация.md`; when the task is already waiting for implementation approval, the same command starts code changes and changes the task status to `В разработке`.
-- `Начни тестирование RTD-2343` runs the tester stage.
-- `Начни документацию RTD-2343` runs the technical writer stage.
-- If the user sends a role command without a task number, for example `Начни документацию`, ask only for the task number and wait.
+- `Начни задачу RTD-2343: Название` начинает или продолжает задачу.
+- `Начни аналитику RTD-2343 <путь-к-файлу>` или `Начни аналитику RTD-2343 <текст требований>` запускает этап аналитика.
+- `Начни архитектуру RTD-2343` запускает этап архитектора.
+- `Начни разработку RTD-2343` создает или обновляет `Реализация.md`; если задача уже ждет согласования реализации, эта же команда начинает изменения кода и переводит задачу в статус `В разработке`.
+- `Начни тестирование RTD-2343` запускает этап тестировщика.
+- `Начни документацию RTD-2343` запускает этап технического писателя.
+- Если пользователь отправляет ролевую команду без номера задачи, например `Начни документацию`, спроси только номер задачи и жди ответа.
 
-## Safety Rules
+## Правила безопасности
 
-- Do not modify production code when `Начни разработку` creates or updates `Реализация.md`; after creating `Реализация.md`, wait for the user to approve it and repeat `Начни разработку`.
-- On repeated `Начни разработку` after implementation approval, update `.task1cspec.json` so the task status becomes `В разработке`, then modify code according to the approved `Реализация.md`.
-- Do not archive a task until the user explicitly confirms archiving.
-- Do not create a new task folder when only a task number was supplied and no existing task folder was found; ask whether this is a new task first.
-- `Начни задачу` only creates or finds the task folder and service files; do not create stage specifications at that step.
-- During `Начни аналитику`, require either a source file path or a requirements prompt before creating `ТехЗадание.md`.
-- Ask all missing-information questions interactively in chat. Do not leave questions, TODOs, or unresolved prompts inside specification files.
-- Preserve unrelated project changes.
+- Не изменяй рабочий код, когда `Начни разработку` создает или обновляет `Реализация.md`; после создания `Реализация.md` жди, пока пользователь согласует его и повторит `Начни разработку`.
+- При повторной команде `Начни разработку` после согласования реализации обнови `.task1cspec.json`, чтобы статус задачи стал `В разработке`, затем меняй код согласно согласованному `Реализация.md`.
+- Не архивируй задачу, пока пользователь явно не подтвердит архивацию.
+- Не создавай новую папку задачи, если был указан только номер задачи и существующая папка не найдена; сначала спроси, новая ли это задача.
+- `Начни задачу` только создает или находит папку задачи и служебные файлы; на этом шаге не создавай спецификации этапов.
+- Во время `Начни аналитику` требуй путь к исходному файлу или текст требований до создания `ТехЗадание.md`.
+- Все вопросы по недостающей информации задавай интерактивно в чате. Не оставляй вопросы, TODO или нерешенные запросы внутри файлов спецификаций.
+- Сохраняй несвязанные изменения проекта.
