@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import shutil
 import sys
@@ -19,6 +20,8 @@ PROJECT_SPECS = "ProjectSpecs"
 ARCHIVE_DIR = "Архив"
 DOCS_DIR = "Документация"
 ACTIVE_DIR = "Задачи в работе"
+TASK_CARD_FILE = "Задача.md"
+TASK_STATE_FILE = ".task1cspec.json"
 
 SPEC_ORDER: tuple[tuple[str, str, str], ...] = (
     ("Аналитик", "ТехЗадание.md", "Спецификация целей"),
@@ -111,6 +114,57 @@ def task_number_from_folder(path: Path) -> str:
     return name
 
 
+def task_title_from_folder(path: Path) -> str:
+    if " - " in path.name:
+        return path.name.split(" - ", 1)[1]
+    return ""
+
+
+def task_from_folder(path: Path) -> TaskInput:
+    return TaskInput(number=task_number_from_folder(path), title=task_title_from_folder(path))
+
+
+def service_file_paths(task_dir: Path) -> tuple[Path, Path]:
+    return task_dir / TASK_CARD_FILE, task_dir / TASK_STATE_FILE
+
+
+def write_service_files(task_dir: Path, task: TaskInput, state: str) -> None:
+    title = task.title or task_title_from_folder(task_dir)
+    card_path, state_path = service_file_paths(task_dir)
+
+    if not card_path.exists():
+        card_path.write_text(
+            f"""# Задача
+
+## Реквизиты
+
+- Номер: {task.number}
+- Название: {title}
+- Статус: {"в работе" if state == "active" else "архив"}
+
+## Назначение
+
+Служебная карточка задачи Task1CSpec. Содержательные спецификации создаются на отдельных этапах.
+""",
+            encoding="utf-8",
+        )
+
+    state_path.write_text(
+        json.dumps(
+            {
+                "number": task.number,
+                "title": title,
+                "state": state,
+                "specifications": [filename for _role, filename, _description in SPEC_ORDER],
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+
 def find_task(root: Path, number: str) -> tuple[str, Path] | None:
     ensure_layout(root)
     wanted = number.strip().casefold()
@@ -176,8 +230,6 @@ def starter_content(role: str, task_dir: Path) -> str:
 
 ## Как проверить результат
 
-## Вопросы и допущения
-
 """
 
     if role == "Архитектор":
@@ -236,8 +288,6 @@ def starter_content(role: str, task_dir: Path) -> str:
 
 ## План изменения кода
 
-## Вопросы и допущения
-
 """
 
     if role == "Тестировщик":
@@ -290,6 +340,10 @@ def print_task_status(state: str, task_dir: Path) -> None:
     print(f"Задача: {task_dir.name}")
     print(f"Статус: {state_label}")
     print(f"Путь: {task_dir}")
+    card_path, state_path = service_file_paths(task_dir)
+    print("Служебные файлы:")
+    print(f"- {TASK_CARD_FILE}: {'есть' if card_path.exists() else 'нет'}")
+    print(f"- {TASK_STATE_FILE}: {'есть' if state_path.exists() else 'нет'}")
     print("Спецификации:")
     for role, filename, exists in spec_status(task_dir):
         marker = "есть" if exists else "нет"
@@ -321,6 +375,7 @@ def cmd_start(args: argparse.Namespace) -> int:
     found = find_task(root, task.number)
     if found:
         state, task_dir = found
+        write_service_files(task_dir, task_from_folder(task_dir), state)
         print_task_status(state, task_dir)
         return 0
 
@@ -331,6 +386,7 @@ def cmd_start(args: argparse.Namespace) -> int:
 
     task_dir = active_root(root) / task_folder_name(task)
     task_dir.mkdir(parents=False, exist_ok=False)
+    write_service_files(task_dir, task, "active")
     print(f"Создана папка задачи: {task_dir}")
     print_task_status("active", task_dir)
     return 0
@@ -394,6 +450,7 @@ def cmd_archive(args: argparse.Namespace) -> int:
 
     state, task_dir = found
     if state == "archive":
+        write_service_files(task_dir, task_from_folder(task_dir), "archive")
         print(f"Задача уже в архиве: {task_dir}")
         return 0
 
@@ -407,6 +464,7 @@ def cmd_archive(args: argparse.Namespace) -> int:
         return 1
 
     shutil.move(str(task_dir), str(destination))
+    write_service_files(destination, task_from_folder(destination), "archive")
     print(f"Задача перенесена в архив: {destination}")
     return 0
 

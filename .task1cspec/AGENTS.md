@@ -4,19 +4,14 @@ This directory contains a local Task1CSpec orchestrator. Treat these instruction
 
 ## Activation
 
-Use Task1CSpec when the user asks to manage 1C task specifications or sends one of these commands, with or without a leading slash:
+Use Task1CSpec when the user asks to manage 1C task specifications or sends one of these local-mode commands:
 
-- `TaskStart` or `/TaskStart`
-- `TaskAnalyst` or `/TaskAnalyst`
-- `TaskArchitect` or `/TaskArchitect`
-- `TaskDeveloper` or `/TaskDeveloper`
-- `TaskTester` or `/TaskTester`
-- `TaskTechWriter` or `/TaskTechWriter`
-- `TaskАналитик` or `/TaskАналитик`
-- `TaskАрхитектор` or `/TaskАрхитектор`
-- `TaskРазработчик` or `/TaskРазработчик`
-- `TaskТестировщик` or `/TaskТестировщик`
-- `TaskТехническийПисатель` or `/TaskТехническийПисатель`
+- `Начни задачу`
+- `Начни аналитику`
+- `Начни архитектуру`
+- `Начни разработку`
+- `Начни тестирование`
+- `Начни документацию`
 
 Before doing Task1CSpec work, read `.task1cspec/skills/task1cspec/SKILL.md` completely and follow it as the workflow authority. If it references `references/templates.md`, read that index and the role-specific template file before creating or updating specifications.
 
@@ -26,24 +21,24 @@ The orchestrator is intentionally project-local and does not require Codex plugi
 
 - Keep task data in `ProjectSpecs/`.
 - Use `.task1cspec/scripts/task1cspec.py` for `init`, `start`, `status`, `role`, and `archive` when the script exists.
-- The `.task1cspec/commands/` directory is compatibility documentation for plugin/custom-command use. Do not require it to be installed for the local workflow.
 
 ## Command Handling
 
-If a Task1CSpec command is received as plain text, parse it exactly like the slash command:
+Local-mode commands are plain text and do not start with `/`. Codex clients may intercept unknown slash commands before the agent can process them.
 
-- `TaskStart RTD-2343: Название` starts or continues a task.
-- `TaskAnalyst RTD-2343` runs the analyst stage.
-- `TaskArchitect RTD-2343` runs the architect stage.
-- `TaskDeveloper RTD-2343` runs the developer stage.
-- `TaskTester RTD-2343` runs the tester stage.
-- `TaskTechWriter RTD-2343` runs the technical writer stage.
-
-If the Codex client does not accept unknown slash commands, tell the user to send the same command without the leading slash.
+- `Начни задачу RTD-2343: Название` starts or continues a task.
+- `Начни аналитику RTD-2343 <путь-к-файлу>` or `Начни аналитику RTD-2343 <текст требований>` runs the analyst stage.
+- `Начни архитектуру RTD-2343` runs the architect stage.
+- `Начни разработку RTD-2343` runs the developer stage.
+- `Начни тестирование RTD-2343` runs the tester stage.
+- `Начни документацию RTD-2343` runs the technical writer stage.
 
 ## Safety Rules
 
-- Do not modify production code during `TaskDeveloper` until the user has explicitly approved `Реализация.md`.
+- Do not modify production code during `Начни разработку` until the user has explicitly approved `Реализация.md`.
 - Do not archive a task until the user explicitly confirms archiving.
 - Do not create a new task folder when only a task number was supplied and no existing task folder was found; ask whether this is a new task first.
+- `Начни задачу` only creates or finds the task folder and service files; do not create stage specifications at that step.
+- During `Начни аналитику`, require either a source file path or a requirements prompt before creating `ТехЗадание.md`.
+- Ask all missing-information questions interactively in chat. Do not leave questions, TODOs, or unresolved prompts inside specification files.
 - Preserve unrelated project changes.

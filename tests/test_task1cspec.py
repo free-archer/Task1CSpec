@@ -1,6 +1,7 @@
 import contextlib
 import importlib.util
 import io
+import json
 import sys
 import tempfile
 import unittest
@@ -47,6 +48,14 @@ class Task1CSpecTests(unittest.TestCase):
                 / "RTD-2343 - Доработка переключения вызова"
             )
             self.assertTrue(task_dir.is_dir())
+            self.assertTrue((task_dir / "Задача.md").is_file())
+            self.assertTrue((task_dir / ".task1cspec.json").is_file())
+            self.assertFalse((task_dir / "ТехЗадание.md").exists())
+
+            state = json.loads((task_dir / ".task1cspec.json").read_text(encoding="utf-8"))
+            self.assertEqual(state["number"], "RTD-2343")
+            self.assertEqual(state["title"], "Доработка переключения вызова")
+            self.assertEqual(state["state"], "active")
 
     def test_find_task_by_number_ignores_title(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -84,7 +93,9 @@ class Task1CSpecTests(unittest.TestCase):
                 / "ТехЗадание.md"
             )
             self.assertTrue(spec.exists())
-            self.assertIn("## Как сейчас", spec.read_text(encoding="utf-8"))
+            content = spec.read_text(encoding="utf-8")
+            self.assertIn("## Как сейчас", content)
+            self.assertNotIn("## Вопросы", content)
 
     def test_archive_moves_active_task(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -98,6 +109,16 @@ class Task1CSpecTests(unittest.TestCase):
                 (root / "ProjectSpecs" / "Задачи в работе" / "RTD-2 - Test").exists()
             )
             self.assertTrue((root / "ProjectSpecs" / "Архив" / "RTD-2 - Test").is_dir())
+            state = json.loads(
+                (
+                    root
+                    / "ProjectSpecs"
+                    / "Архив"
+                    / "RTD-2 - Test"
+                    / ".task1cspec.json"
+                ).read_text(encoding="utf-8")
+            )
+            self.assertEqual(state["state"], "archive")
 
 
 if __name__ == "__main__":
