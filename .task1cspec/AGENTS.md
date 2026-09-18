@@ -20,7 +20,7 @@ Before doing Task1CSpec work, read `.task1cspec/skills/task1cspec/SKILL.md` comp
 The orchestrator is intentionally project-local and does not require Codex plugin installation.
 
 - Keep task data in `ProjectSpecs/`.
-- Use `.task1cspec/scripts/task1cspec.py` for `init`, `start`, `status`, `role`, and `archive` when the script exists.
+- Do not rely on local helper scripts or Python. Perform `init`, `start`, `status`, `role`, and `archive` as direct agent file operations with shell commands such as `mkdir`, `find`, `mv`, and file reads/writes.
 
 ## Command Handling
 
