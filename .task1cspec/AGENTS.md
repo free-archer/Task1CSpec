@@ -29,13 +29,15 @@ Local-mode commands are plain text and do not start with `/`. Codex clients may 
 - `Начни задачу RTD-2343: Название` starts or continues a task.
 - `Начни аналитику RTD-2343 <путь-к-файлу>` or `Начни аналитику RTD-2343 <текст требований>` runs the analyst stage.
 - `Начни архитектуру RTD-2343` runs the architect stage.
-- `Начни разработку RTD-2343` runs the developer stage.
+- `Начни разработку RTD-2343` creates or updates `Реализация.md`; when the task is already waiting for implementation approval, the same command starts code changes and changes the task status to `В разработке`.
 - `Начни тестирование RTD-2343` runs the tester stage.
 - `Начни документацию RTD-2343` runs the technical writer stage.
+- If the user sends a role command without a task number, for example `Начни документацию`, ask only for the task number and wait.
 
 ## Safety Rules
 
-- Do not modify production code during `Начни разработку` until the user has explicitly approved `Реализация.md`.
+- Do not modify production code when `Начни разработку` creates or updates `Реализация.md`; after creating `Реализация.md`, wait for the user to approve it and repeat `Начни разработку`.
+- On repeated `Начни разработку` after implementation approval, update `.task1cspec.json` so the task status becomes `В разработке`, then modify code according to the approved `Реализация.md`.
 - Do not archive a task until the user explicitly confirms archiving.
 - Do not create a new task folder when only a task number was supplied and no existing task folder was found; ask whether this is a new task first.
 - `Начни задачу` only creates or finds the task folder and service files; do not create stage specifications at that step.
