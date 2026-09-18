@@ -1,10 +1,20 @@
 import contextlib
+import importlib.util
 import io
+import sys
 import tempfile
 import unittest
 from pathlib import Path
 
-from scripts import task1cspec
+
+ROOT = Path(__file__).resolve().parents[1]
+TASK1CSPEC_PATH = ROOT / ".task1cspec" / "scripts" / "task1cspec.py"
+SPEC = importlib.util.spec_from_file_location("task1cspec", TASK1CSPEC_PATH)
+assert SPEC is not None
+task1cspec = importlib.util.module_from_spec(SPEC)
+assert SPEC.loader is not None
+sys.modules[SPEC.name] = task1cspec
+SPEC.loader.exec_module(task1cspec)
 
 
 def run_cli(args: list[str]) -> int:

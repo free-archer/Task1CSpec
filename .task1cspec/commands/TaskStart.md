@@ -8,7 +8,7 @@ allowed-tools: [Read, Glob, Grep, Bash, Write, Edit]
 
 Пользователь вызвал `/TaskStart` с аргументами: `$ARGUMENTS`
 
-Прочитай `skills/task1cspec/SKILL.md` и выполни процедуру TaskStart точно по инструкции.
+Прочитай `.task1cspec/skills/task1cspec/SKILL.md` и выполни процедуру TaskStart точно по инструкции.
 
 Если номер и название задачи не переданы, запроси задачу в таком формате:
 
@@ -16,4 +16,4 @@ allowed-tools: [Read, Glob, Grep, Bash, Write, Edit]
 RTD-2343: Доработка переключения вызова из ОМ ВнешниеДанные. ТоварныеОперации
 ```
 
-Используй `scripts/task1cspec.py start "$ARGUMENTS"`, если скрипт доступен в плагине или репозитории. Если скрипт недоступен, выполни те же файловые проверки вручную.
+Используй `.task1cspec/scripts/task1cspec.py start "$ARGUMENTS"`, если скрипт доступен в текущем проекте. Если скрипт недоступен, выполни те же файловые проверки вручную.
